@@ -5,21 +5,22 @@ import torch.optim as optim
 from model import LeNet
 import torchvision.transforms as transforms
 
+
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+print('Device:{}'.format(device))
+
 transform = transforms.Compose([transforms.ToTensor(),
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 train_dataset = torchvision.datasets.CIFAR10(root='./root', train=True, download=False, transform=transform)
 train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True, num_workers=0)
 
-test_dataset = torchvision.datasets.CIFAR10(root='./root', train=False, download=False, transform=transform)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=64, shuffle=False, num_workers=0)
+val_dataset = torchvision.datasets.CIFAR10(root='./root', train=False, download=False, transform=transform)
+val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=64, shuffle=False, num_workers=0)
 
 LeNet = LeNet()
 loss_function = nn.CrossEntropyLoss()
 optimizer = optim.Adam(LeNet.parameters(), lr=0.001)
-
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-print('Device:{}'.format(device))
 
 LeNet = LeNet.to(device)
 loss_function = loss_function.to(device)
@@ -42,7 +43,7 @@ for epoch in range(epochs):
     total_loss = 0
     total_correct = 0
     with torch.no_grad():
-        for img, label in test_dataloader:
+        for img, label in val_dataloader:
             img = img.to(device)
             label = label.to(device)
             
@@ -52,9 +53,9 @@ for epoch in range(epochs):
 
             # argmax(1)取output1轴概率最大的索引(网络预测的标签结果)
             # output.argmax(1) == label计算预测结果是否与GT相等
-            correct = (output.argmax(1) == label).sum().item()
-            total_correct += correct
+            correct = (output.argmax(1) == label).sum()
+            total_correct += correct.item()
         print('Loss:{:.3f}'.format(total_loss))
-        print('Accuracy:{:.3f}'.format(total_correct / len(test_dataset)))
+        print('Accuracy:{:.3f}'.format(total_correct / len(val_dataset)))
 
 torch.save(LeNet, 'LeNet.pth')
