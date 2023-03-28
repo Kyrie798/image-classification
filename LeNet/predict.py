@@ -4,6 +4,9 @@ import torchvision.transforms as transforms
 from PIL import Image
 
 def main():
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    print('Device:{}'.format(device))
+
     transform = transforms.Compose([transforms.Resize((32, 32)),
                                     transforms.ToTensor(),
                                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
@@ -12,9 +15,6 @@ def main():
             'dog', 'frog', 'horse', 'ship', 'truck')
 
     LeNet = torch.load('LeNet.pth')
-
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-    print('Device:{}'.format(device))
 
     img = Image.open('./test.jpg')
     img = transform(img) # [C, H, W]
