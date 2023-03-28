@@ -28,6 +28,7 @@ loss_function = loss_function.to(device)
 epochs = 10
 for epoch in range(epochs):
     print('Epoch:{} / {}'.format(epoch, epochs))
+    LeNet.train()
     for step, (img, label) in enumerate(train_dataloader):
         img = img.to(device)
         label = label.to(device)
@@ -42,6 +43,7 @@ for epoch in range(epochs):
         
     total_loss = 0
     total_correct = 0
+    LeNet.eval()
     with torch.no_grad():
         for img, label in val_dataloader:
             img = img.to(device)
