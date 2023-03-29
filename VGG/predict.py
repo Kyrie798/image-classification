@@ -18,7 +18,7 @@ img = img.to(device)
 with open('./class_indices.json', 'r') as f:
     class_dict = json.load(f)
 
-AlexNet = torch.load('AlexNet.pth')
+AlexNet = torch.load('vgg.pth')
 
 AlexNet.eval()
 with torch.no_grad():

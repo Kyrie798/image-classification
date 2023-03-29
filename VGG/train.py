@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import transforms, datasets
-from model import AlexNet
+from model import vgg
 from tqdm import tqdm
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -22,24 +22,26 @@ train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shu
 val_dataset = datasets.ImageFolder(root='./dataset/val', transform=data_transform['val'])
 val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
 
-AlexNet = AlexNet(num_classes=5)
-loss_function = nn.CrossEntropyLoss()
-optimizer = optim.Adam(AlexNet.parameters(), lr=0.0002)
 
-AlexNet = AlexNet.to(device)
+model_name = 'vgg16'
+vgg = vgg(model_name = model_name, num_classes=5)
+loss_function = nn.CrossEntropyLoss()
+optimizer = optim.Adam(vgg.parameters(), lr=0.0001)
+
+vgg = vgg.to(device)
 loss_function = loss_function.to(device)
 
 epochs = 10
 best_acc = 0.0
 for epoch in range(epochs):
+    vgg.train()
     train_bar = tqdm(train_dataloader)
-    AlexNet.train()
     for step, (img, label) in enumerate(train_bar):
         img = img.to(device)
         label = label.to(device)
 
         optimizer.zero_grad()
-        output = AlexNet(img)
+        output = vgg(img)
         loss = loss_function(output, label)
         loss.backward()
         optimizer.step()
@@ -47,14 +49,14 @@ for epoch in range(epochs):
 
     total_loss = 0.0
     total_correct = 0.0
-    AlexNet.eval()
+    vgg.eval()
     with torch.no_grad():
         val_bar = tqdm(val_dataloader)
         for img, label in val_bar:
             img = img.to(device)
             label = label.to(device)
 
-            output = AlexNet(img)
+            output = vgg(img)
             loss = loss_function(output, label)
             total_loss += loss.item()
 
@@ -64,6 +66,5 @@ for epoch in range(epochs):
         accuracy = total_correct / len(val_dataset)
         if accuracy > best_acc:
             best_acc = accuracy
-            torch.save(AlexNet, 'AlexNet.pth')
-
+            torch.save(vgg, 'vgg.pth')
         print('Loss:{:.3f} Accuracy:{:.3f}'.format(total_loss, total_correct / len(val_dataset)))
