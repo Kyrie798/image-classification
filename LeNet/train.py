@@ -4,6 +4,7 @@ import torchvision
 import torch.optim as optim
 from model import LeNet
 import torchvision.transforms as transforms
+from tqdm import tqdm
 
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -27,9 +28,9 @@ loss_function = loss_function.to(device)
 
 epochs = 10
 for epoch in range(epochs):
-    print('Epoch:{} / {}'.format(epoch, epochs))
+    train_bar = tqdm(train_dataloader)
     LeNet.train()
-    for step, (img, label) in enumerate(train_dataloader):
+    for step, (img, label) in enumerate(train_bar):
         img = img.to(device)
         label = label.to(device)
 
@@ -38,14 +39,14 @@ for epoch in range(epochs):
         loss = loss_function(output, label)
         loss.backward()
         optimizer.step()
-        if step % 100 == 0:
-            print('Iterations:{}, Loss:{:.3f}'.format(step, loss.item()))
+        train_bar.desc = 'Epoch:{}/{} Train Loss:{:.3f}'.format(epoch, epochs, loss)
         
     total_loss = 0
     total_correct = 0
     LeNet.eval()
     with torch.no_grad():
-        for img, label in val_dataloader:
+        val_bar = tqdm(val_dataloader)
+        for img, label in val_bar:
             img = img.to(device)
             label = label.to(device)
             
@@ -57,7 +58,7 @@ for epoch in range(epochs):
             # output.argmax(1) == label计算预测结果是否与GT相等
             correct = (output.argmax(1) == label).sum()
             total_correct += correct.item()
-        print('Loss:{:.3f}'.format(total_loss))
-        print('Accuracy:{:.3f}'.format(total_correct / len(val_dataset)))
+            val_bar.desc = 'Epoch:{}/{} Val Loss:{:.3f}'.format(epoch, epochs, loss)
+        print('Loss:{:.3f} Accuracy:{:.3f}'.format(total_loss, total_correct / len(val_dataset)))
 
 torch.save(LeNet, 'LeNet.pth')
