@@ -1,2 +1,2 @@
 ### AlexNet
-![AlexNet](./repo/AlexNet.png)
+![AlexNet](../repo/AlexNet.png)
