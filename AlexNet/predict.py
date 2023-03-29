@@ -15,8 +15,8 @@ img = transform(img) # [C, H, W]
 img = torch.unsqueeze(img, 0) # [B, C, H, W]
 img = img.to(device)
 
-json_file = open('./class_indices.json', 'r')
-class_dict = json.load(json_file)
+with open('./class_indices.json', 'r') as f:
+    class_dict = json.load(f)
 
 AlexNet = torch.load('AlexNet.pth')
 
@@ -26,4 +26,4 @@ with torch.no_grad():
     accuracy = torch.softmax(output, 0)
     predict = output.argmax(0).cpu().numpy()
 
-print('class:{}, accuracy:{:.2f}'.format(class_dict[str(predict)], accuracy[predict].item()))
+print('class:{}, accuracy:{:.2f}'.format(class_dict[str(predict)], accuracy[predict]))
