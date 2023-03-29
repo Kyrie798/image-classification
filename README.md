@@ -6,4 +6,4 @@ You can download flower classification datasets from [flower](https://storage.go
 ### AlexNet
 ![1](https://user-images.githubusercontent.com/56728472/228416336-97ed1e26-42fe-4ede-a7f7-5163857d4ebe.png)
 ### VGG
-![1](https://user-images.githubusercontent.com/56728472/228440660-e01bdf5e-6b8d-4974-bcab-aefc79caa048.png)
+![image](https://user-images.githubusercontent.com/56728472/228441821-4205bb05-5aa0-40e5-9f5f-6ec1f251df79.png)
