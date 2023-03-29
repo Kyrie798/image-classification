@@ -4,7 +4,7 @@ You can download flower classification datasets from [flower](https://storage.go
 
 ## Prepare
 ```
-# Before Training, you should split the datasets into trian and val:
+# Before training, you should split the datasets into trian and val:
 python split.py
 ```
 ## Train
