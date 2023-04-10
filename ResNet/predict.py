@@ -6,9 +6,10 @@ from PIL import Image
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print('Device:{}'.format(device))
 
-transform = transforms.Compose([transforms.Resize((224, 224)),
+transform = transforms.Compose([transforms.Resize(256),
+                                transforms.CenterCrop(224),
                                 transforms.ToTensor(),
-                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+                                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
 img = Image.open('./test.jpg')
 img = transform(img) # [C, H, W]
@@ -18,11 +19,11 @@ img = img.to(device)
 with open('./class_indices.json', 'r') as f:
     class_dict = json.load(f)
 
-vgg = torch.load('vgg.pth')
+resnet34 = torch.load('resnet34.pth')
 
-vgg.eval()
+resnet34.eval()
 with torch.no_grad():
-    output = torch.squeeze(vgg(img))
+    output = torch.squeeze(resnet34(img))
     accuracy = torch.softmax(output, 0)
     predict = output.argmax(0).cpu().numpy()
 
