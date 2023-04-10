@@ -23,6 +23,7 @@ val_dataset = datasets.ImageFolder(root='./dataset/val', transform=data_transfor
 val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
 
 resnet34 = resnet34()
+# down from https://download.pytorch.org/models/resnet34-333f7ec4.pth
 weight = './resnet34_pre.pth'
 resnet34.load_state_dict(torch.load(weight, map_location='cpu'))
 in_channel = resnet34.fc.in_features
