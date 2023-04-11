@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import transforms, datasets
-from model import resnet34
+from model import MobileNetV3_Large
 from tqdm import tqdm
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -12,7 +12,8 @@ data_transform = {'train': transforms.Compose([transforms.RandomResizedCrop(224)
                                                transforms.RandomHorizontalFlip(),
                                                transforms.ToTensor(),
                                                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]),
-                  'val': transforms.Compose([transforms.Resize((224, 224)),
+                  'val': transforms.Compose([transforms.Resize(256),
+                                             transforms.CenterCrop(224),
                                              transforms.ToTensor(),
                                              transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])}
 
@@ -22,32 +23,24 @@ train_dataloader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shu
 val_dataset = datasets.ImageFolder(root='./dataset/val', transform=data_transform['val'])
 val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=0)
 
-# download pretrained weights from url="https://download.pytorch.org/models/resnet34-b627a593.pth"
-resnet34 = resnet34()
-weight = './resnet34_pre.pth'
-resnet34.load_state_dict(torch.load(weight, map_location='cpu'))
-in_channel = resnet34.fc.in_features
-resnet34.fc = nn.Linear(in_channel, 5)
-
+MobileNetV3_Large = MobileNetV3_Large(num_classes=5)
 loss_function = nn.CrossEntropyLoss()
+optimizer = optim.Adam(MobileNetV3_Large.parameters(), lr=0.0001)
 
-params = [p for p in resnet34.parameters() if p.requires_grad]
-optimizer = optim.Adam(resnet34.parameters(), lr=0.0001)
-
-resnet34 = resnet34.to(device)
+MobileNetV3_Large = MobileNetV3_Large.to(device)
 loss_function = loss_function.to(device)
 
-epochs = 5
+epochs = 10
 best_acc = 0.0
 for epoch in range(epochs):
-    resnet34.train()
     train_bar = tqdm(train_dataloader)
+    MobileNetV3_Large.train()
     for step, (img, label) in enumerate(train_bar):
         img = img.to(device)
         label = label.to(device)
 
         optimizer.zero_grad()
-        output = resnet34(img)
+        output = MobileNetV3_Large(img)
         loss = loss_function(output, label)
         loss.backward()
         optimizer.step()
@@ -55,14 +48,14 @@ for epoch in range(epochs):
 
     total_loss = 0.0
     total_correct = 0.0
-    resnet34.eval()
+    MobileNetV3_Large.eval()
     with torch.no_grad():
         val_bar = tqdm(val_dataloader)
         for img, label in val_bar:
             img = img.to(device)
             label = label.to(device)
 
-            output = resnet34(img)
+            output = MobileNetV3_Large(img)
             loss = loss_function(output, label)
             total_loss += loss.item()
 
@@ -72,5 +65,6 @@ for epoch in range(epochs):
         accuracy = total_correct / len(val_dataset)
         if accuracy > best_acc:
             best_acc = accuracy
-            torch.save(resnet34, 'resnet34.pth')
+            torch.save(MobileNetV3_Large, 'MobileNetV3_Large.pth')
+
         print('Loss:{:.3f} Accuracy:{:.3f}'.format(total_loss, total_correct / len(val_dataset)))
