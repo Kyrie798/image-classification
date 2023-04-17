@@ -1,3 +1,3 @@
 ### EfficientNet
 ![MBConv](../repo/MBConv.png)
-![EfficientNet](../repo/EfficientNet.jpg)
+![EfficientNet](../repo/EfficientNet.png)
