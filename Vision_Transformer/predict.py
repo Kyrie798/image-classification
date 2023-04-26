@@ -20,13 +20,13 @@ img = img.to(device)
 with open('./class_indices.json', 'r') as f:
     class_dict = json.load(f)
 
-shufflenet_v2 = vit_base_patch16_224_in21k(num_classes=5, has_logits=False).to(device)
+vit = vit_base_patch16_224_in21k(num_classes=5, has_logits=False).to(device)
 
 model_weight_path = "./weights/vit_base_16.pth"
-shufflenet_v2.load_state_dict(torch.load(model_weight_path, map_location=device))
-shufflenet_v2.eval()
+vit.load_state_dict(torch.load(model_weight_path, map_location=device))
+vit.eval()
 with torch.no_grad():
-    output = torch.squeeze(shufflenet_v2(img))
+    output = torch.squeeze(vit(img))
     accuracy = torch.softmax(output, 0)
     predict = output.argmax(0).cpu().numpy()
 

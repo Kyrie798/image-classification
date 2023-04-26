@@ -25,13 +25,13 @@ img = img.to(device)
 with open('./class_indices.json', 'r') as f:
     class_dict = json.load(f)
 
-shufflenet_v2 = efficientnetv2_s(num_classes=5).to(device)
+efficientnetv2_s = efficientnetv2_s(num_classes=5).to(device)
 
 model_weight_path = "./weights/efficientnetv2_s.pth"
-shufflenet_v2.load_state_dict(torch.load(model_weight_path, map_location=device))
-shufflenet_v2.eval()
+efficientnetv2_s.load_state_dict(torch.load(model_weight_path, map_location=device))
+efficientnetv2_s.eval()
 with torch.no_grad():
-    output = torch.squeeze(shufflenet_v2(img))
+    output = torch.squeeze(efficientnetv2_s(img))
     accuracy = torch.softmax(output, 0)
     predict = output.argmax(0).cpu().numpy()
 

@@ -20,13 +20,13 @@ img = img.to(device)
 with open('./class_indices.json', 'r') as f:
     class_dict = json.load(f)
 
-shufflenet_v2 = swin_tiny_patch4_window7_224(num_classes=5).to(device)
+swin_tiny = swin_tiny_patch4_window7_224(num_classes=5).to(device)
 
 model_weight_path = "./weights/swin_tiny.pth"
-shufflenet_v2.load_state_dict(torch.load(model_weight_path, map_location=device))
-shufflenet_v2.eval()
+swin_tiny.load_state_dict(torch.load(model_weight_path, map_location=device))
+swin_tiny.eval()
 with torch.no_grad():
-    output = torch.squeeze(shufflenet_v2(img))
+    output = torch.squeeze(swin_tiny(img))
     accuracy = torch.softmax(output, 0)
     predict = output.argmax(0).cpu().numpy()
 
